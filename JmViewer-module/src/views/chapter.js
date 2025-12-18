@@ -1,6 +1,7 @@
 import { decryptData } from "../api/crypto.js";
 import { getComicAlbum ,getComicChapter, retryFetch} from "../api/request.js";
 import appState from "../store/appState.js";
+import { getSetting, setSetting } from "../store/getSetting.js";
 import { debounce } from "../utils/debounce.js";
 import { convertToEnglishNumber } from "../utils/format.js";
 import { cutImage } from "./image.js";
@@ -49,11 +50,11 @@ function setComicInfo(comicInfo) {
         comicInfo.total_views
     );
     document.querySelector(".comic-id").textContent = "——" + comicInfo.id;
-    document.querySelector(".author").textContent =
-        "创作者：" + comicInfo.author.join(" & ");
+    const authorNameDom=document.querySelector(".author")
+    authorNameDom.innerHTML = `创作者：${comicInfo.author.map(name=>`<a href="./search.html?wd=${name}">${name}</a>`).join(" & ")}`
     document.querySelector(".tags").innerHTML = comicInfo.tags
         .concat(comicInfo.actors)
-        .map((tag) => (tag ? `<div class='tag'>${tag}</div>` : ""))
+        .map((tag) => (tag ? `<a class='tag' href="./search.html?wd=${tag}">${tag}</a>` : ""))
         .join("");
     const seriesElement = document.querySelector(".series");
     if (comicInfo.series.length) {
@@ -121,8 +122,24 @@ function setComicInfo(comicInfo) {
         });
     });
     loadForumComments(comicInfo.id, 1);
+    const foldForumBtn = document.querySelector(".fold-forum-btn");
+    const forumDom = document.querySelector(".forum");
+    foldForumBtn.addEventListener('click',()=>{
+        if(forumDom.classList.contains('unfold')){
+            foldForumBtn.textContent='展开更多'
+            forumDom.classList.remove('unfold')
+            window.scrollTo({
+                top:forumDom.offsetTop+100,
+                behavior:'smooth'
+            })
+        }else{
+            foldForumBtn.textContent='折叠'
+            forumDom.classList.add('unfold')
+        }
+    })
 }
 function setComicImages(comicId, images) {
+    addToggleSeverEvent()
     const imagesContainer = document.querySelector(".comic-imgs");
     const imagesNumberEle = document.querySelector(".imgs-num");
     const imagesLoadNumberEle = document.querySelector(".imgs-loaded-num");
@@ -178,13 +195,15 @@ function setComicImages(comicId, images) {
                             100
                         ).toFixed(2)}%)`;
                         resizeObserver.unobserve(imgDom);
-                        entry.target.style.height = imgDom.height + "px";
+                        entry.target.style.height = null
                         if (comicId >= 220980 && !/.gif/.test(images[index])) {
                             const page = images[index - 1].substring(0, 5);
                             entry.target.append(
                                 cutImage(imgDom, comicId, page)
                             );
                             imgDom.remove();
+                        }else{
+                            imgDom.style.filter='none'
                         }
 
                         imgBg.remove();
@@ -200,9 +219,10 @@ function setComicImages(comicId, images) {
                         entry.target.addEventListener(
                             "click",
                             () => {
-                                imgDom.src = entry.target.dataset.src;
+                                imgDom.src = `https://${appState.serverInfo.imgServer[appState.serverInfo.usingImgServerIndex]}${entry.target.dataset.pathName}`;
                                 imgBg.textContent = "加载中...";
                                 entry.target.classList.remove("error-img");
+                                entry.target.style.height='500px'
                             },
                             {
                                 once: true,
@@ -227,7 +247,7 @@ function setComicImages(comicId, images) {
         const imgBg = imgContainer.children[0];
         imgBg.textContent = "加载中...";
         resizeObserver.observe(imgDom);
-        imgDom.src = imgContainer.dataset.src;
+        imgDom.src = `https://${appState.serverInfo.imgServer[appState.serverInfo.usingImgServerIndex]}${imgContainer.dataset.pathName}`;
         loadingImgCount++;
     }
     function _set() {
@@ -237,7 +257,7 @@ function setComicImages(comicId, images) {
             const imgDom = new Image();
             imgContainer.className = "image";
             imgContainer.style.height = "500px";
-            imgContainer.dataset.src = `https://${appState.serverInfo.imgServer[0]}/media/photos/${comicId}/${images[curCount]}`;
+            imgContainer.dataset.pathName = `/media/photos/${comicId}/${images[curCount]}`;
             imgContainer.dataset.index = curCount;
             intersectionObserver.observe(imgContainer);
             imgBg.className = "image-bg";
@@ -382,4 +402,26 @@ function getMaxRequestCount() {
         return 3;
     }
     return 5;
+}
+function addToggleSeverEvent(){
+    const toggleSeverDom=document.querySelector('.toggle-server')
+    const severMenuDom=toggleSeverDom.querySelector('.server-menu')
+    const toggleSeverDomText=toggleSeverDom.querySelector('span')
+    const setting=getSetting()
+    
+    // const severItemDoms=document.querySelectorAll('.sever-item')
+    for(let i=0;i<appState.serverInfo.imgServer.length;i++){
+        const severItemDom=document.createElement('a')
+        severItemDom.className='sever-item'
+        severItemDom.textContent=`线路${i+1}`
+        severMenuDom.appendChild(severItemDom)
+        severItemDom.addEventListener('click',()=>{
+            appState.serverInfo.usingImgServerIndex=i
+            toggleSeverDomText.textContent=`线路${i+1}`
+            setting['img-server']=i.toString()
+            setSetting(setting)
+        })
+    }
+    appState.serverInfo.usingImgServerIndex=setting['img-server']
+    toggleSeverDomText.textContent=`线路${parseInt(setting['img-server'])+1}`
 }

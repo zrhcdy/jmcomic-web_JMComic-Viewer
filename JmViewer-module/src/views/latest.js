@@ -14,13 +14,8 @@ export async function updateLatestPage() {
     });
 
     latestComicsElement.addEventListener("click", (event) => {
-        if (event.target.className !== "comics-latest") {
-            let targetElement = event.target;
-            while (
-                (targetElement = targetElement.parentNode).className !==
-                "book-item"
-            ) {}
-            location.href = "./chapter.html?cid=" + targetElement.dataset.cid;
+        if (event.target.classList.contains('book-item')) {
+            open("./chapter.html?cid=" + event.target.dataset.cid);
         }
     });
 }

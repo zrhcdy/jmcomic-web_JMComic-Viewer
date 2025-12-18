@@ -60,8 +60,11 @@ function addPromotionEvent(element, observer) {
         if (!isMouseDown) return;
         event.preventDefault();
         deltaX = event.pageX - startX;
+        let x=currentLeft * 300 - deltaX
+        if(x<0)x=0
+        if(x>(itemCount-1)*300)x=(itemCount-1)*300
         innerElement.style.transform = `translateX(-${
-            currentLeft * 300 - deltaX
+            x
         }px)`;
         scrollBarInner.style.marginLeft =
             (currentLeft - deltaX / 300) * ((1 / itemCount) * 100) + "%";
@@ -87,11 +90,7 @@ function addPromotionEvent(element, observer) {
         }
         if (Math.abs(deltaX) < 5 && Date.now() - clickStartTime < 200) {
             let targetElement = event.target;
-            if (targetElement.className !== "inner") {
-                while (
-                    (targetElement = targetElement.parentNode).className !==
-                    "book-item"
-                ) {}
+            if (targetElement.classList.contains('book-item')) {
                 open("./chapter.html?cid=" + targetElement.dataset.cid);
             }
         }
@@ -141,8 +140,11 @@ function addPromotionEvent(element, observer) {
             event.preventDefault();
         }
         deltaX = event.touches[0].pageX - startX;
+        let x=currentLeft * 300 - deltaX
+        if(x<0)x=0
+        if(x>(itemCount-1)*300)x=(itemCount-1)*300
         innerElement.style.transform = `translateX(-${
-            currentLeft * 300 - deltaX
+            x
         }px)`;
         scrollBarInner.style.marginLeft =
             (currentLeft - deltaX / 300) * ((1 / itemCount) * 100) + "%";
@@ -168,11 +170,7 @@ function addPromotionEvent(element, observer) {
         }
         if (Math.abs(deltaX) < 5 && Date.now() - clickStartTime < 200) {
             let targetElement = event.target;
-            if (targetElement.className !== "inner") {
-                while (
-                    (targetElement = targetElement.parentNode).className !==
-                    "book-item"
-                ) {}
+            if (targetElement.classList.contains('book-item')) {
                 open("./chapter.html?cid=" + targetElement.dataset.cid);
             }
         }

@@ -15,9 +15,10 @@ export function updateSearchInput() {
         event.preventDefault();
         const searchQuery = searchInput.value;
         if (searchQuery === "") return;
-        location.href = "./search.html?wd=" + searchQuery.replace(" ", "");
         if (Number.isInteger(+searchQuery) && searchQuery >= 10) {
             location.href = "./chapter.html?cid=" + searchQuery;
+        } else {
+            location.href = "./search.html?wd=" + searchQuery.replace(" ", "");
         }
     });
 }
@@ -35,13 +36,8 @@ export async function updateSearchPage() {
     const observer = createBookItemObserver();
     const resultLength = 80;
     searchResultsElement.addEventListener("click", (event) => {
-        if (event.target.className !== "comics-result") {
-            let targetElement = event.target;
-            while (
-                (targetElement = targetElement.parentNode).className !==
-                "book-item"
-            ) {}
-            open("./chapter.html?cid=" + targetElement.dataset.cid);
+        if (event.target.classList.contains('book-item')) {
+            open("./chapter.html?cid=" + event.target.dataset.cid);
         }
     });
     if (searchResults.content.length < resultLength) {

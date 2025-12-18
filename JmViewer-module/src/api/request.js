@@ -29,7 +29,7 @@ export async function getSearchResults(searchQuery, page) {
             },
             redirect: "follow",
         },
-        3
+        6
     );
     const searchData = await searchResponse.json();
     return decryptData(appState.currentKey, searchData.data);
@@ -44,7 +44,7 @@ export async function getLatestContent(page) {
             },
             redirect: "follow",
         },
-        3
+        6
     );
     const latestData = await latestResponse.json();
     return decryptData(appState.currentKey, latestData.data);
@@ -66,7 +66,7 @@ export async function getPromotionContent() {
             },
             redirect: "follow",
         },
-        3
+        6
     );
     const promotionData = await promotionResponse.json();
     const data = decryptData(appState.currentKey, promotionData.data);
@@ -91,14 +91,14 @@ export async function getComicAlbum(comicId) {
             },
             redirect: "follow",
         },
-        3
+        6
     );
     const albumData = await albumResponse.json();
     return decryptData(appState.currentKey, albumData.data);
 }
 export async function getComicChapter(comicId) {
     const chapterResponse = await retryFetch(
-        `https://${appState.serverInfo.Server[1]}/chapter?id=${comicId}`,
+        `https://${appState.serverInfo.Server[0]}/chapter?id=${comicId}`,
         {
             headers: {
                 token: appState.accessToken.token,
@@ -106,7 +106,7 @@ export async function getComicChapter(comicId) {
             },
             redirect: "follow",
         },
-        3
+        6
     );
     const chapterData = await chapterResponse.json();
     return decryptData(appState.currentKey, chapterData.data);
