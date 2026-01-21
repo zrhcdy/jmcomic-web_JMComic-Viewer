@@ -1,5 +1,6 @@
+import CryptoJS from "../crypto/crypto.js";
 import appState from "../store/appState.js";
-import { decryptData } from "./crypto.js";
+import { calculateMD5, decryptData } from "./crypto.js";
 
 export function checkInternet() {
     if (!navigator.onLine) {
@@ -18,6 +19,21 @@ export async function retryFetch(...args) {
         return retryFetch(...args, tryCount - 1);
     }
 }
+
+
+// console.log((text));
+export async function getCurrentApi() {
+    const resp=await retryFetch('https://rup4a04-c01.tos-ap-southeast-1.bytepluses.com/newsvr-2025.txt',1)
+    const text=await resp.text()
+    
+    const dynamicKey = calculateMD5('diosfjckwpqpdfjkvnqQjsik');
+    const decryptedData = CryptoJS.AES.decrypt(
+        text,
+        CryptoJS.enc.Utf8.parse(dynamicKey),
+        { mode: CryptoJS.mode.ECB }
+    );
+    return JSON.parse(decryptedData.toString(CryptoJS.enc.Utf8));
+};
 
 export async function getSearchResults(searchQuery, page) {
     const searchResponse = await retryFetch(

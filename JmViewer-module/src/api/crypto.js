@@ -7,7 +7,7 @@ export function calculateMD5(inputStr) {
 export function generateToken(key) {
     return {
         token: calculateMD5(key + "185Hcomic3PAPP7R"),
-        tokenParam: `${key},1.8.0`
+        tokenParam: `${key},3.2.0`
     };
 }
 

@@ -1,10 +1,10 @@
 const settingOptions={
     'reading-mode':['default','paper','yellow-paper'],
-    'img-server':["0","1","2","3"]
+    'img-server':["0","1","2","3","4","5"]
 }
 const settingOptionsText={
     'reading-mode':['默认','纸质','黄纸'],
-    'img-server':['线路1','线路2','线路3','线路4']
+    'img-server':['线路1','线路2','线路3','线路4','线路5','线路6']
 }
 export function getSetting(){
     const setting=JSON.parse(localStorage.getItem('setting') || "{}")
